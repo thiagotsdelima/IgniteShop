@@ -7,6 +7,8 @@ export const globolStyles = globalCss({
     boxSizing: "border-box",
   },
   body: {
+    background: '$gray900',
+    color: '$gray100',
     '-webkit-font-smoothing': 'antialiased',
     '-moz-osx-font-smoothing': 'grayscale',
     font: 'inherit',

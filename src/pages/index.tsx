@@ -22,13 +22,6 @@ export default function Home() {
           <span>R$ 79,90</span>
         </footer>
       </Produtc>
-      <Produtc>
-        <Image src={blusa3} width={520} height={480} alt="" />
-        <footer>
-          <strong>T-shirt X</strong>
-          <span>R$ 79,90</span>
-        </footer>
-      </Produtc>
     </HomeContainer>
   );
 }

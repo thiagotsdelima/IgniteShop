@@ -1,6 +1,6 @@
 import { globalCss } from ".";
 
-export const globolStyles = globalCss({
+export const globalStyles = globalCss({
   '*': {
     padding: 0,
     margin: 0,

@@ -1,17 +1,66 @@
+import { stripe } from "@/src/services/stripe";
 import { ImageContainer, ProductContainer, ProductDetails } from "@/src/styles/pages/product";
+import { GetStaticPaths, GetStaticProps } from "next";
+import Image from "next/image";
+import Stripe from "stripe";
 
-export default function Product() {
+interface ProductProps {
+  product: {
+    id: string;
+    name: string;
+    imageUrl: string;
+    price: string;
+    description: string | null; 
+  }
+}
+
+export default function Product({ product }: ProductProps) {
   return (
    <ProductContainer>
-    <ImageContainer></ImageContainer>
+    <ImageContainer>
+      <Image src={product.imageUrl} width={520} height={480} alt="" />
+    </ImageContainer>
     <ProductDetails>
-      <h1>T-shirt X</h1>
-      <span>R$ 79,90</span>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias officia itaque nam et exercitationem, asperiores, obcaecati architecto id voluptatibus eaque vel non aperiam tempore? Amet optio dolore quia reiciendis iste?</p>
+      <h1>{product.name}</h1>
+      <span>{product.price}</span>
+      <p>{product.description}</p>
       <button>
         buy now
       </button>
     </ProductDetails>
    </ProductContainer>
   )
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [
+      { params: { id: 'prod_Q2xsa22JHGWyCD'}}
+    ],
+    fallback: 'blocking',
+  };
+};
+
+export const getStaticProps: GetStaticProps<ProductProps> = async ({ params }) => {
+  const productId = params?.id as string;
+  const product = await stripe.products.retrieve(productId, {
+    expand: ['default_price'],
+  });
+  const price = product.default_price as Stripe.Price;
+  const unitAmount = price?.unit_amount ?? 0;
+  return {
+    props: {
+      product: {
+          id: product.id,
+          name: product.name,
+          imageUrl: product.images[0],
+          price: new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        }).format(unitAmount / 100),
+        description: product.description,
+      }
+    },
+    revalidate: 60 * 60 * 1 // 1 hour
+  };
 }

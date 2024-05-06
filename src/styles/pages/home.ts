@@ -7,7 +7,7 @@ maxWidth: 'calc(100vw - ((100vw - 1168px) / 2))',
 minHeight: '656px', 
 })
 
-export const Product = styled('a', {
+export const Product = styled('div', {
   background: 'linear-gradient(180deg, #1ea483 0%, #7465d4 100%)',
   borderRadius: 8,
   cursor: 'pointer',

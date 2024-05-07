@@ -6,8 +6,8 @@ import Stripe from "stripe";
 import Image from "next/image";
 
 interface SuccessProps {
-  customerName: string;
-  product: {
+    customerName: string;
+    product: {
     name: string;
     imageUrl: string;
   };

@@ -13,6 +13,7 @@
     "axios": "^1.6.8",
     "keen-slider": "^6.8.6",
     "next": "14.2.3",
+    "phosphor-react": "^1.4.1",
     "react": "^18",
     "react-dom": "^18",
     "stripe": "^15.5.0"

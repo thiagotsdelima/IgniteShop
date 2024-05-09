@@ -1,5 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { BagButton } from '../BagButton';
+import { MenuContent } from '../MenuContent';
+
 
 
 export function MenuHamburguer() {
@@ -8,13 +10,7 @@ export function MenuHamburguer() {
         <Dialog.Trigger asChild>
           <BagButton />
         </Dialog.Trigger>
-        <Dialog.Portal>
-          <Dialog.Overlay />
-          <Dialog.Content>
-            <Dialog.Close />
-            <Dialog.Title>Bag of Shopping</Dialog.Title>
-          </Dialog.Content>
-        </Dialog.Portal>
+      <MenuContent />
       </Dialog.Root>
    
   )

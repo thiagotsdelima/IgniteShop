@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Content, Overlay } from './styles';
+import { Content, Overlay, Product, ProductImage, ProductDetails, Finalization, FinalizationDetails } from './styles';
 import { CartProvider } from '@/src/hooks/Cart';
 import { useState } from 'react';
 import axios from 'axios';

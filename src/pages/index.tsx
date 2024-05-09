@@ -1,29 +1,35 @@
 import Image from "next/image";
 import { HomeContainer, Product } from "../styles/pages/home";
 import { useKeenSlider } from 'keen-slider/react';
-import 'keen-slider/keen-slider.min.css';
 import { stripe } from "../services/stripe";
 import { GetStaticProps } from "next";
+import { BagButton } from '../components/BagButton'
+import { IProduct } from '../contexts/BagContext'
+import { CartProvider } from '../hooks/Cart'
+import 'keen-slider/keen-slider.min.css';
 import Stripe from "stripe";
 import Link from "next/link";
 import Head from "next/head";
+import { MouseEvent } from "react";
 
 interface HomeProps {
-  products: {
-    id: string;
-    name: string;
-    imageUrl: string;
-    price: string;
-  }[];
+  products: IProduct[]
 }
 
 export default function Home({ products }: HomeProps) {
+  const { checkItemExists, addToProductCart  } = CartProvider()
   const [sliderRef] = useKeenSlider({
     slides: {
       perView: 3,
       spacing: 48,
     }
   });
+
+  function handleaAddToProductCart(e: MouseEvent<HTMLButtonElement>, product: IProduct) {
+    e.preventDefault()
+    addToProductCart(product)
+  }
+
 
   return (
     <>
@@ -40,6 +46,10 @@ export default function Home({ products }: HomeProps) {
               <footer>
               <strong>{product.name}</strong>
               <span>{product.price}</span>
+              <BagButton 
+                    onClick={(e) => handleaAddToProductCart(e, product)}
+                    disabled={checkItemExists(product.id)}
+                />
               </footer>
           </Product>
           </Link>

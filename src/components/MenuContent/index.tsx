@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Content, Overlay, Product, ProductImage, ProductDetails, Finalization, FinalizationDetails } from './styles';
-import { CartProvider } from '@/src/hooks/Cart';
+import { ItmsContent, Product, ProductImage, ProductDetails, Finalization, FinalizationDetails } from './styles';
+import { CartProvider } from '../../hooks/Cart'
 import { useState } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
@@ -8,7 +8,7 @@ import Image from 'next/image';
 export function MenuContent() {
   const [ isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false)
   const { bagItems, removeProductCart, bagTotal } = CartProvider()
-  const bagQuantity = bagItems.length
+  const bagQuantity = bagItems ? bagItems.length : 0;
 
   const formattedTotal = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -35,26 +35,29 @@ async function handleCheckout() {
 
   return (
     <Dialog.Portal>
-    <Overlay />
-    <Content>
+    <Dialog.Overlay />
+    <ItmsContent>
       <Dialog.Close />
       <Dialog.Title>Bag of Shopping</Dialog.Title>
-      <main>
-      {bagQuantity <= 0 && <p>It looks like your cart is empty : </p>}
-      {bagItems.map(bagItems => (
-                            <Product key={bagItems.id}>
-                                <ProductImage>
-                                    <Image width={100} height={93} alt="" src={bagItems.imageUrl}/>
-                                </ProductImage>
-                                <ProductDetails>
-                                    <p>{bagItems.name}</p>
-                                    <strong>{bagItems.price}</strong>
+        <main>
+            {bagItems && bagItems.length > 0 ? (
+                bagItems.map((bagItem) => (
+                <Product key={bagItem.id}>
+                    <ProductImage>
+                    <Image width={100} height={93} alt="" src={bagItem.imageUrl} />
+                    </ProductImage>
+                    <ProductDetails>
+                    <p>{bagItem.name}</p>
+                    <strong>{bagItem.price}</strong>
+                    <button onClick={() => removeProductCart(bagItem.id)}>Remove</button>
+                    </ProductDetails>
+                </Product>
+                ))
+            ) : (
+                <p>It looks like your cart is empty.</p>
+            )}
+        </main>
 
-                                    <button onClick={() => removeProductCart(bagItems.id)}>Remove</button>
-                                </ProductDetails>
-                            </Product>
-                        ))}
-      </main>
                      <Finalization>
                         <FinalizationDetails>
                             <div>
@@ -68,7 +71,7 @@ async function handleCheckout() {
                         </FinalizationDetails>
                         <button onClick={handleCheckout} disabled={isCreatingCheckoutSession || bagQuantity <= 0}>Finalize purchase</button>
                     </Finalization>
-    </Content>
+    </ItmsContent>
   </Dialog.Portal>
   )
 }

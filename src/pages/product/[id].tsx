@@ -1,40 +1,20 @@
 import { stripe } from "@/src/services/stripe";
 import { ImageContainer, ProductContainer, ProductDetails } from "@/src/styles/pages/product";
-import axios from "axios";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useState } from "react";
+import { IProduct } from '../../contexts/BagContext'
+import { CartProvider } from '../../hooks/Cart'
 import Stripe from "stripe";
 
 interface ProductProps {
-  product: {
-    id: string;
-    name: string;
-    imageUrl: string;
-    price: string;
-    description: string | null; 
-    defaultPriceId: string;
-  }
+  product: IProduct
 }
 
 export default function Product({ product }: ProductProps) {
-  // const router = useRouter() // aplicacao interna
-  const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false)
-  async function handleBuyProduct() {
-    try {
-      setIsCreatingCheckoutSession(true);
-      const response = await axios.post('/api/checkout', {
-        priceId: product.defaultPriceId,
-      })
-      const { checkoutUrl } = response.data;
-     // router.push('/checkout') // aplicacao interna
-      window.location.href = checkoutUrl // se usar a opcao acima retiro essa
-    } catch(err) {
-      setIsCreatingCheckoutSession(false);
-      alert('Failed to redirect checkout')
-    }
-  }
+  const { checkItemExists, addToProductCart } = CartProvider()
+  const itemInCart = checkItemExists(product.id)
+  
   return (
     <>
       <Head>
@@ -49,8 +29,10 @@ export default function Product({ product }: ProductProps) {
       <h1>{product.name}</h1>
       <span>{product.price}</span>
       <p>{product.description}</p>
-      <button disabled={isCreatingCheckoutSession} onClick={handleBuyProduct}>
-        buy now
+      <button 
+      disabled={itemInCart} 
+      onClick={() => addToProductCart(product)}>
+        {itemInCart ? 'Product is already in the cart' : 'Put it in the bag'}
       </button>
     </ProductDetails>
    </ProductContainer>

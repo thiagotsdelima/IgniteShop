@@ -45,8 +45,10 @@ export default function Home({ products }: HomeProps) {
           <Product className="keen-slider__slide">
             <Image src={product.imageUrl} width={520} height={480} alt="" />
               <footer>
-              <strong>{product.name}</strong>
-              <span>{product.price}</span>
+              <div className="footerDetails">
+                <strong>{product.name}</strong>
+                <span>{product.price}</span>
+              </div>
               <BagButton 
                     onClick={(e) => handleaAddToProductCart(e, product)}
                     disabled={checkItemExists(product.id)}

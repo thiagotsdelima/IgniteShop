@@ -35,6 +35,11 @@ export const Product = styled('div', {
     opacity: 0,
     transition: 'all 0.2s ease-in-out'
   },
+  footerDetails: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+  },
   strong: {
     fontSize: '$lg',
     color: '$gray100',
@@ -45,9 +50,9 @@ export const Product = styled('div', {
     color: '$green300',
   },
   '&:hover': {
-footer: {
-  transform: 'translateY(0%)',
-  opacity: 1,
-}
+    footer: {
+      transform: 'translateY(0%)',
+      opacity: 1,
+    }
   }
 })

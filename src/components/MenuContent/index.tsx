@@ -1,13 +1,14 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { ItmsContent, Product, ProductImage, ProductDetails, Finalization, FinalizationDetails } from './styles';
-import { CartProvider } from '../../hooks/Cart'
+import { useContext } from "react";
+import { BagContext } from "../../contexts/BagContext";
 import { useState } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
 
 export function MenuContent() {
   const [ isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false)
-  const { bagItems, removeProductCart, bagTotal } = CartProvider()
+  const { bagItems, removeProductCart, bagTotal } = useContext(BagContext);
   const bagQuantity = bagItems ? bagItems.length : 0;
 
   const formattedTotal = new Intl.NumberFormat('pt-BR', {

@@ -5,7 +5,8 @@ import { stripe } from "../services/stripe";
 import { GetStaticProps } from "next";
 import { BagButton } from '../components/BagButton'
 import { IProduct } from '../contexts/BagContext'
-import { CartProvider } from '../hooks/Cart'
+import { useContext } from "react";
+import { BagContext } from "../contexts/BagContext";
 import 'keen-slider/keen-slider.min.css';
 import Stripe from "stripe";
 import Link from "next/link";
@@ -17,7 +18,7 @@ interface HomeProps {
 }
 
 export default function Home({ products }: HomeProps) {
-  const { checkItemExists, addToProductCart  } = CartProvider()
+  const { checkItemExists, addToProductCart } = useContext(BagContext);
   const [sliderRef] = useKeenSlider({
     slides: {
       perView: 3,

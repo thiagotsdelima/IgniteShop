@@ -35,11 +35,11 @@ export const Product = styled('div', {
     opacity: 0,
     transition: 'all 0.2s ease-in-out'
   },
-  footerDetails: {
+  div: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 4,
-  },
+    gap: '0.25rem',
+},
   strong: {
     fontSize: '$lg',
     color: '$gray100',

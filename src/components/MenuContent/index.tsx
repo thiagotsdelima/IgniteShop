@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { ItmsContent, Product, ProductImage, ProductDetails, Finalization, FinalizationDetails } from './styles';
+import { ItmsContent, Product, ProductImage, ProductDetails, Finalization, FinalizationDetails, Title, Close } from './styles';
 import { useContext } from "react";
 import { BagContext } from "../../contexts/BagContext";
 import { useState } from 'react';
@@ -38,8 +38,8 @@ async function handleCheckout() {
     <Dialog.Portal>
     <Dialog.Overlay />
     <ItmsContent>
-      <Dialog.Close />
-      <Dialog.Title>Bag of Shopping</Dialog.Title>
+      <Close />
+      <Title>Bag of Shopping</Title>
         <main>
             {bagItems && bagItems.length > 0 ? (
                 bagItems.map((bagItem) => (

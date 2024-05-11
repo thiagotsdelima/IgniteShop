@@ -4,7 +4,7 @@ import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { IProduct } from '../../contexts/BagContext'
-import { CartProvider } from '../../hooks/cart'
+import { CartProvider } from '../../hooks/Cart'
 import Stripe from "stripe";
 
 interface ProductProps {

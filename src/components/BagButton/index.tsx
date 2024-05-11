@@ -1,13 +1,13 @@
 import { Handbag } from "phosphor-react";
 import { BagConteiner } from "./styles";
-import { ComponentProps } from "react";
+import { ComponentProps, forwardRef } from "react";
 
 type BagProps = ComponentProps<typeof BagConteiner>
 
-export function BagButton({ ...rest }: BagProps) {
+export const BagButton = forwardRef<HTMLDivElement, BagProps>((props, ref) => {
   return (
-    <BagConteiner>
-        <Handbag weight="bold" />
+    <BagConteiner ref={ref} {...props}>
+      <Handbag weight="bold" />
     </BagConteiner>
-  )
-}
+  );
+});

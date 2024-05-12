@@ -50,6 +50,7 @@ export default function Home({ products }: HomeProps) {
                 <span>{product.price}</span>
                 </div>
               <BagButton 
+                    color={"green"}
                     onClick={(e) => handleaAddToProductCart(e, product)}
                     disabled={checkItemExists(product.id)}
                 />

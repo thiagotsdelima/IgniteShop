@@ -3,9 +3,13 @@ import { forwardRef } from 'react';
 import { BagButton } from '../BagButton';
 import { MenuContent } from '../MenuContent';
 
-const ForwardedBagButton = forwardRef((props, ref) => <BagButton ref={ref} {...props} />);
+const ForwardedBagButton = forwardRef<HTMLDivElement>((props, ref) => <BagButton ref={ref} {...props} />);
 
-export function MenuHamburguer() {
+interface MenuHamburguerProps {
+  bagQuantity: number;
+}
+
+export function MenuHamburguer({ bagQuantity }: MenuHamburguerProps)  {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>

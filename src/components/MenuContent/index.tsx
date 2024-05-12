@@ -3,8 +3,9 @@ import { ItmsContent, Product, ProductImage, ProductDetails, Finalization, Final
 import { useContext } from "react";
 import { BagContext } from "../../contexts/BagContext";
 import { useState } from 'react';
-import axios from 'axios';
+import { X } from 'phosphor-react'
 import Image from 'next/image';
+import axios from 'axios';
 
 export function MenuContent() {
   const [ isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false)
@@ -16,29 +17,30 @@ export function MenuContent() {
     currency: 'BRL'
 }).format(bagTotal)
 
-async function handleCheckout() {
-  try {
-      setIsCreatingCheckoutSession(true)
+  async function handleCheckout() {
+    try {
+      setIsCreatingCheckoutSession(true);
+  
+      const response = await axios.post('/api/checkout', {
+        priceId: 'data.default_price', 
+      });
 
-      const response =  await axios.post('/api/checkout', {
-          products: bagItems
-      })
-
-      const { checkoutUrl } = response.data
-
-      window.location.href = checkoutUrl
-
-  } catch (error) {
-      setIsCreatingCheckoutSession(false)
-      alert('Failed to redirect checkout!')
+      const { checkoutUrl } = response.data;
+  
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      setIsCreatingCheckoutSession(false);
+      alert('Failed to redirect to checkout!');
+    }
   }
-}
 
   return (
     <Dialog.Portal>
     <Dialog.Overlay />
     <ItmsContent>
-      <Close />
+      <Close>
+      <X  size={32}/>
+      </Close>
       <Title>Bag of Shopping</Title>
         <main>
             {bagItems && bagItems.length > 0 ? (

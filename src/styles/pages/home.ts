@@ -33,7 +33,7 @@ export const Product = styled('div', {
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     transform: 'translateY(110%)',
     opacity: 0,
-    transition: 'all 0.2s ease-in-out'
+    transition: 'all 0.2s ease-in-out',
   },
   div: {
     display: 'flex',

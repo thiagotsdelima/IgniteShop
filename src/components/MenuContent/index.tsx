@@ -12,27 +12,31 @@ export function MenuContent() {
   const { bagItems, removeProductCart, bagTotal } = useContext(BagContext);
   const bagQuantity = bagItems ? bagItems.length : 0;
 
+  console.log("Total do carrinho antes da formatação:", bagTotal);
   const formattedTotal = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
-}).format(bagTotal)
-
-  async function handleCheckout() {
-    try {
-      setIsCreatingCheckoutSession(true);
+  }).format(bagTotal);
+  console.log("Total do carrinho após a formatação:", formattedTotal);
   
+
+async function handleCheckout(){
+  try {
+      setIsCreatingCheckoutSession(true);
       const response = await axios.post('/api/checkout', {
-        priceId: 'data.default_price', 
+        pricesIds: bagItems.map(product => {
+          return product.defaultPriceId
+        })
       });
 
       const { checkoutUrl } = response.data;
-  
+
       window.location.href = checkoutUrl;
-    } catch (error) {
+    } catch (err) {
       setIsCreatingCheckoutSession(false);
       alert('Failed to redirect to checkout!');
     }
-  }
+}
 
   return (
     <Dialog.Portal>

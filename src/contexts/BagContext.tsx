@@ -28,15 +28,24 @@ export function BagContextProvider({ children }: BagContextProviderProps) {
   const [bagItems, setBagItems] = useState<IProduct[]>([]);
 
   const bagTotal = bagItems.reduce((total, product) => {
-    return total + product.numberPrice;
+    console.log("Preço do produto:", product.numberPrice);
+    return total + (isNaN(product.numberPrice) ? 0 : product.numberPrice);
   }, 0);
+  
+  
 
   function addToProductCart(product: IProduct) {
+    let price = product.price; 
+    let numberPrice = Number(price.replace('R$', '').replace(',', '.'));
+    product.numberPrice = numberPrice;
+    console.log("Produto adicionado:", product);
+    console.log("Preço do produto (numberPrice):", product.numberPrice);
     setBagItems(state => [...state, product]);
   }
 
   function removeProductCart(productId: string) {
     setBagItems(state => state.filter(item => item.id !== productId));
+    console.log("Produto removido. Itens restantes no carrinho:", bagItems);
   }
 
   function checkItemExists(productId: string) {

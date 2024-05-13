@@ -1,17 +1,21 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { forwardRef } from 'react';
-import { BagButton } from '../BagButton';
+import { forwardRef, useContext } from 'react';
+import { BagContext } from '../../contexts/BagContext'
 import { MenuContent } from '../MenuContent';
 
-const ForwardedBagButton = forwardRef<HTMLDivElement>((props, ref) => <BagButton ref={ref} {...props} />);
-
 interface MenuHamburguerProps {
-  bagQuantity: number;
   badgeComponent: React.ComponentType<{ count: number }> | null;
 }
 
-export function MenuHamburguer({ bagQuantity, badgeComponent }: MenuHamburguerProps) {
+import { BagButton } from '../BagButton';
+const ForwardedBagButton = forwardRef<HTMLDivElement>((props, ref) => <BagButton ref={ref} {...props} />);
+
+
+export function MenuHamburguer({ badgeComponent }: MenuHamburguerProps) {
+  const { bagItems } = useContext(BagContext);
+  const bagQuantity = bagItems ? bagItems.length : 0;
   const BadgeComponent = badgeComponent; 
+
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>

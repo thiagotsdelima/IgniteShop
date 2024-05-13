@@ -12,8 +12,8 @@ globalStyles();
 
 export default function App({ Component, pageProps }: AppProps) {
   const { bagItems } = useContext(BagContext);
-
   const bagQuantity = bagItems ? bagItems.length : 0;
+
   const { pathname } = useRouter()
   const showCart = pathname !== '/success'
 

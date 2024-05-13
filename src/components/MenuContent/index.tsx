@@ -12,12 +12,10 @@ export function MenuContent() {
   const { bagItems, removeProductCart, bagTotal } = useContext(BagContext);
   const bagQuantity = bagItems ? bagItems.length : 0;
 
-  console.log("Total do carrinho antes da formatação:", bagTotal);
   const formattedTotal = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
   }).format(bagTotal);
-  console.log("Total do carrinho após a formatação:", formattedTotal);
   
 
 async function handleCheckout(){

@@ -23,8 +23,9 @@ export default function App({ Component, pageProps }: AppProps) {
       <Container>
         <Header>
           <Image src={logoImg} alt="" /> 
-          {showCart && <MenuHamburguer bagQuantity={bagQuantity} />}
-          {showCart && <Badge count={bagQuantity} />}
+          {showCart && (
+          <MenuHamburguer bagQuantity={bagQuantity} badgeComponent={Badge} />
+          )}
         </Header>
         <Component {...pageProps} />
       </Container>

@@ -7,15 +7,20 @@ const ForwardedBagButton = forwardRef<HTMLDivElement>((props, ref) => <BagButton
 
 interface MenuHamburguerProps {
   bagQuantity: number;
+  badgeComponent: React.ComponentType<{ count: number }> | null;
 }
 
-export function MenuHamburguer({ bagQuantity }: MenuHamburguerProps)  {
+export function MenuHamburguer({ bagQuantity, badgeComponent }: MenuHamburguerProps) {
+  const BadgeComponent = badgeComponent; 
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <ForwardedBagButton />
+        <div style={{ position: 'relative' }}>
+          <ForwardedBagButton />
+          {BadgeComponent && bagQuantity > 0 && <BadgeComponent count={bagQuantity} />}
+        </div>
       </Dialog.Trigger>
       <MenuContent />
-    </Dialog.Root> 
-  )
+    </Dialog.Root>
+  );
 }

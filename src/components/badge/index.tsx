@@ -8,9 +8,9 @@ export function Badge({ count }: BadgeProps) {
   return (
     <div style={{
       position: 'absolute',
-      top: '10px',
-      right: '10px',
-      background: 'red',
+      top: '-4px',
+      right: '-7px',
+      background: 'green',
       borderRadius: '50%',
       width: '20px',
       height: '20px',

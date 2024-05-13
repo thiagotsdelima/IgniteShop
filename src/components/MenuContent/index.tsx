@@ -18,23 +18,21 @@ export function MenuContent() {
   }).format(bagTotal);
   
 
-async function handleCheckout(){
-  try {
+  async function handleCheckout() {
+    try {
       setIsCreatingCheckoutSession(true);
       const response = await axios.post('/api/checkout', {
-        pricesIds: bagItems.map(product => {
-          return product.defaultPriceId
-        })
+        pricesIds: bagItems.map(product => product.defaultPriceId)
       });
-
+  
       const { checkoutUrl } = response.data;
-
       window.location.href = checkoutUrl;
     } catch (err) {
       setIsCreatingCheckoutSession(false);
       alert('Failed to redirect to checkout!');
     }
-}
+  }  
+  
 
   return (
     <Dialog.Portal>

@@ -1,40 +1,37 @@
-import { stripe } from "@/src/services/stripe";
 import { NextApiRequest, NextApiResponse } from "next";
+import { stripe } from "../../services/stripe";
+
+interface Request {
+  pricesIds: string[];
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { priceId } = req.body;
+  const { pricesIds } = req.body as Request;
 
-  // aqui é para o usuário não acessar pelo URL, impede de adicionar diretamente na URL
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed!' })
-  }  
-
-  if (!priceId) {
-    return res.status(400).json({ error: 'Price not found!' })
+    return res.status(405).json({ error: 'Method not allowed.' });
   }
-  
-  let checkoutSession;
 
-  try {
-    checkoutSession = await stripe.checkout.sessions.create({
-      success_url: `${process.env.NEXT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_URL}/`,
-      mode: 'payment', 
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        }
-      ],
-    });
-
-    const successUrl = `${process.env.NEXT_URL}/success?session_id=${checkoutSession.id}`;
-  } catch (error) {
-    console.error('Error creating checkout session:', error);
-    return res.status(500).json({ error: 'Failed to create checkout session' });
+  if (!pricesIds) {
+    return res.status(400).json({ error: 'Prices not found.' });
   }
+
+  const success_url = `${process.env.NEXT_URL}/success?session_id={CHECKOUT_SESSION_ID}`;
+  const cancel_url = `${process.env.NEXT_URL}/`;
+
+  const checkoutSession = await stripe.checkout.sessions.create({
+    success_url,
+    cancel_url,
+    mode: 'payment',
+    line_items: pricesIds.map(price => {
+      return {
+        price: price ,
+        quantity: 1
+      }
+    })
+  });
 
   return res.status(201).json({
-    checkoutUrl: checkoutSession.url,
-  });
+    checkoutUrl: checkoutSession.url
+  })
 }

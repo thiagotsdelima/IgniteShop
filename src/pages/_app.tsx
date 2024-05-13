@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import logoImg from '../assets/logo.svg'
 import Image from "next/image";
 import { useContext } from "react";
+import { Badge } from '../components/badge'
 
 globalStyles(); 
 
@@ -23,6 +24,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <Header>
           <Image src={logoImg} alt="" /> 
           {showCart && <MenuHamburguer bagQuantity={bagQuantity} />}
+          {showCart && <Badge count={bagQuantity} />}
         </Header>
         <Component {...pageProps} />
       </Container>

@@ -14,7 +14,23 @@ import Head from "next/head";
 import { MouseEvent } from "react";
 
 interface HomeProps {
-  products: IProduct[]
+  products: {
+    id: string
+    name: string
+    imageUrl: string
+    price: string
+    description: string
+    defaultPriceId: string
+  }[]
+}
+
+
+interface Product {
+  id: string
+  name: string
+  imageUrl: string
+  price: string
+  defaultPriceId: string
 }
 
 export default function Home({ products }: HomeProps) {

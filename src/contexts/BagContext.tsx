@@ -1,3 +1,4 @@
+
 import { createContext, ReactNode, useState } from "react";
 
 export interface IProduct {
@@ -7,6 +8,7 @@ export interface IProduct {
   price: string;
   numberPrice: number;
   description: string;
+  quantity?: number;
   defaultPriceId: string;
 }
 
@@ -31,13 +33,13 @@ export function BagContextProvider({ children }: BagContextProviderProps) {
     return total + (isNaN(product.numberPrice) ? 0 : product.numberPrice);
   }, 0);
   
-  
 
   function addToProductCart(product: IProduct) {
     let price = product.price; 
     let numberPrice = Number(price.replace('R$', '').replace(',', '.'));
     product.numberPrice = numberPrice;
     setBagItems(state => [...state, product]);
+    console.log('Bag items:', bagItems); 
   }
 
   function removeProductCart(productId: string) {

@@ -1,38 +1,53 @@
+import axios from 'axios';
 import * as Dialog from '@radix-ui/react-dialog';
 import { ItmsContent, Product, ProductImage, ProductDetails, Finalization, FinalizationDetails, Title, Close } from './styles';
-import { useContext } from "react";
-import { BagContext } from "../../contexts/BagContext";
+import { CartProvider } from '../../hooks/cart'
 import { useState } from 'react';
 import { X } from 'phosphor-react'
 import Image from 'next/image';
-import axios from 'axios';
+
+interface ItemCart{
+  id: string,
+  img?: string,
+  name: string,
+  price: number,
+  quantity: number,
+}
+
 
 export function MenuContent() {
+  const [itemCart, setItemCart] = useState<ItemCart[]>([])
   const [ isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false)
-  const { bagItems, removeProductCart, bagTotal } = useContext(BagContext);
+  const { bagItems, removeProductCart, bagTotal } = CartProvider()
   const bagQuantity = bagItems ? bagItems.length : 0;
 
   const formattedTotal = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
   }).format(bagTotal);
-  
+
+  function clearCart() {
+    setItemCart([]); 
+  }
 
   async function handleCheckout() {
     try {
-      setIsCreatingCheckoutSession(true);
-      const response = await axios.post('/api/checkout', {
-        pricesIds: bagItems.map(product => product.defaultPriceId)
-      });
-  
-      const { checkoutUrl } = response.data;
-      window.location.href = checkoutUrl;
+        const itemsToSend = itemCart.map(({ id, quantity }) => ({ id, quantity }));
+        const response = await axios.post('/api/checkout', {
+           items: itemsToSend
+        })
+
+        const { checkoutUrl } = response.data;
+        window.location.href = checkoutUrl;
     } catch (err) {
-      setIsCreatingCheckoutSession(false);
-      alert('Failed to redirect to checkout!');
+        console.error('Error during checkout:', err);
+        alert('Failed to redirect to checkout!');
     }
-  }  
-  
+
+    setIsCreatingCheckoutSession(true);
+    clearCart();
+}
+
 
   return (
     <Dialog.Portal>

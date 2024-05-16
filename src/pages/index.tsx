@@ -4,14 +4,12 @@ import { useKeenSlider } from 'keen-slider/react';
 import { stripe } from "../services/stripe";
 import { GetStaticProps } from "next";
 import { BagButton } from '../components/BagButton'
-import { IProduct } from '../contexts/BagContext'
-import { useContext } from "react";
-import { BagContext } from "../contexts/BagContext";
 import 'keen-slider/keen-slider.min.css';
 import Stripe from "stripe";
 import Link from "next/link";
 import Head from "next/head";
 import { MouseEvent } from "react";
+import { useShoppingCart } from "use-shopping-cart";
 
 interface HomeProps {
   products: {
@@ -21,20 +19,12 @@ interface HomeProps {
     price: string
     description: string
     defaultPriceId: string
+    sku: string
   }[]
 }
 
-
-interface Product {
-  id: string
-  name: string
-  imageUrl: string
-  price: string
-  defaultPriceId: string
-}
-
 export default function Home({ products }: HomeProps) {
-  const { checkItemExists, addToProductCart } = useContext(BagContext);
+  const { addItem, cartDetails } = useShoppingCart(); 
   const [sliderRef] = useKeenSlider({
     slides: {
       perView: 3,
@@ -42,40 +32,54 @@ export default function Home({ products }: HomeProps) {
     }
   });
 
-  function handleaAddToProductCart(e: MouseEvent<HTMLButtonElement>, product: IProduct) {
-    e.preventDefault()
-    addToProductCart(product)
-  }
+  const handleAddToProductCart = (e: MouseEvent, product: Product) => {
+    const productInCart = Object.keys(cartDetails).find((key) => key === product.id); 
+    if (productInCart) {
+      console.error("Product is already in the cart.");
+    } else {
+      addItem({
+        sku: product.id,
+        name: product.name,
+        price: parseFloat(product.price),
+        image: product.imageUrl,
+        quantity: 1,
+        currency: 'BRL',
+        price_id:  product.defaultPriceId
+      });
+    }
+  };
 
+  const checkItemExists = (productId: string) => {
+    const productInCart = Object.keys(cartDetails).find((key) => key === productId); 
+    return !!productInCart;
+  };
 
   return (
     <>
-       <Head>
+      <Head>
         <title>Home | Ignite Shop</title>
-       </Head>
+      </Head>
     
-    <HomeContainer ref={sliderRef} className="keen-slider">
-      {products.map(product => {
-        return (
+      <HomeContainer ref={sliderRef} className="keen-slider">
+        {products.map(product => (
           <Link key={product.id} href={`/product/${product.id}`} prefetch={false}>
-          <Product className="keen-slider__slide">
-            <Image src={product.imageUrl} width={520} height={480} alt="" />
+            <Product className="keen-slider__slide">
+              <Image src={product.imageUrl} width={520} height={480} alt="" />
               <footer>
                 <div>
-                <strong>{product.name}</strong>
-                <span>{product.price}</span>
+                  <strong>{product.name}</strong>
+                  <span>{product.price}</span>
                 </div>
-              <BagButton 
-                    color={"green"}
-                    onClick={(e) => handleaAddToProductCart(e, product)}
-                    disabled={checkItemExists(product.id)}
+                <BagButton 
+                  color={"green"}
+                  onClick={(e) => handleAddToProductCart(e, product)}
+                  disabled={checkItemExists(product.id)}
                 />
               </footer>
-          </Product>
+            </Product>
           </Link>
-        )
-      })}
-    </HomeContainer>
+        ))}
+      </HomeContainer>
     </>
   );
 }
@@ -87,7 +91,6 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
 
   const products = response.data.map(product => {
     const price = product.default_price as Stripe.Price;
-    const unitAmount = price?.unit_amount ?? 0;
     return {
       id: product.id,
       name: product.name,
@@ -96,7 +99,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
       price: new Intl.NumberFormat('pt-BR', {
         style: 'currency',
         currency: 'BRL'
-      }).format(unitAmount / 100),
+      }).format((price.unit_amount || 0) / 100),
     };
   });
 
@@ -104,6 +107,6 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
     props: {
       products,
     },
-    revalidate: 60 * 60 * 2, // aqui a cada 2hr cria um nova page static
+    revalidate: 60 * 60 * 2, 
   };
 };

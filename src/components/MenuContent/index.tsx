@@ -1,95 +1,113 @@
-import axios from 'axios';
 import * as Dialog from '@radix-ui/react-dialog';
-import { ItmsContent, Product, ProductImage, ProductDetails, Finalization, FinalizationDetails, Title, Close } from './styles';
-import { CartProvider } from '../../hooks/cart'
-import { useState } from 'react';
-import { X } from 'phosphor-react'
+import { useEffect, useState } from 'react';
+import { X } from 'phosphor-react';
 import Image from 'next/image';
+import axios from 'axios';
+import { useShoppingCart } from 'use-shopping-cart';
+import { ItmsContent, Product, ProductImage, ProductDetails, Finalization, FinalizationDetails, Title, Close } from './styles';
 
-interface ItemCart{
-  id: string,
-  img?: string,
-  name: string,
-  price: number,
-  quantity: number,
+interface ItemCart {
+  id: string;
+  img?: string;
+  name: string;
+  price: number;
+  quantity?: number;
 }
 
-
 export function MenuContent() {
-  const [itemCart, setItemCart] = useState<ItemCart[]>([])
-  const [ isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false)
-  const { bagItems, removeProductCart, bagTotal } = CartProvider()
-  const bagQuantity = bagItems ? bagItems.length : 0;
+  const { cartCount, cartDetails, removeItem, clearCart } = useShoppingCart(); 
+
+  const [itemCart, setItemCart] = useState<ItemCart[]>([]);
+  const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false);
+  const [stateCart, setStateCart] = useState(true);
 
   const formattedTotal = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
-  }).format(bagTotal);
+  }).format((cartCount || 0) / 100);
 
-  function clearCart() {
-    setItemCart([]); 
-  }
+  useEffect(() => {
+    if (cartCount! > 0) {
+      setStateCart(false);
+    } else {
+      setStateCart(true);
+    }
+
+    const itemsArray = Object.keys(cartDetails!).map((itemId) => {
+      const item = cartDetails![itemId];
+      const itemCartObj: ItemCart = {
+        id: item.id,
+        img: item.image,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      };
+      return itemCartObj;
+    });
+
+    setItemCart(itemsArray);
+  }, [cartCount]);
 
   async function handleCheckout() {
     try {
-        const itemsToSend = itemCart.map(({ id, quantity }) => ({ id, quantity }));
-        const response = await axios.post('/api/checkout', {
-           items: itemsToSend
-        })
+      const itemsToSend = itemCart.map(({ id, quantity }) => ({ id, quantity }));
+      const response = await axios.post('/api/checkout', {
+        items: itemsToSend
+      });
 
-        const { checkoutUrl } = response.data;
-        window.location.href = checkoutUrl;
+      const { checkoutUrl } = response.data;
+      window.location.href = checkoutUrl;
     } catch (err) {
-        console.error('Error during checkout:', err);
-        alert('Failed to redirect to checkout!');
+      alert(err);
     }
 
     setIsCreatingCheckoutSession(true);
     clearCart();
-}
-
+  }
 
   return (
     <Dialog.Portal>
-    <Dialog.Overlay />
-    <ItmsContent>
-      <Close>
-      <X  size={32}/>
-      </Close>
-      <Title>Bag of Shopping</Title>
+      <Dialog.Overlay />
+      <ItmsContent>
+        <Close>
+          <X size={32} />
+        </Close>
+        <Title>Bag of Shopping</Title>
         <main>
-            {bagItems && bagItems.length > 0 ? (
-                bagItems.map((bagItem) => (
-                <Product key={bagItem.id}>
-                    <ProductImage>
-                    <Image width={100} height={93} alt="" src={bagItem.imageUrl} />
-                    </ProductImage>
-                    <ProductDetails>
-                    <p>{bagItem.name}</p>
-                    <strong>{bagItem.price}</strong>
-                    <button onClick={() => removeProductCart(bagItem.id)}>Remove</button>
-                    </ProductDetails>
+          {cartDetails && Object.keys(cartDetails).length > 0 ? (
+            Object.keys(cartDetails).map((sku) => {
+              const product = cartDetails[sku];
+              return (
+                <Product key={sku}>
+                  <ProductImage>
+                    <Image width={100} height={93} alt="" src={product.imageUrl} />
+                  </ProductImage>
+                  <ProductDetails>
+                    <p>{product.name}</p>
+                    <strong>{product.formattedValue}</strong>
+                    <button onClick={() => removeItem(product.id)}>Remove</button>
+                  </ProductDetails>
                 </Product>
-                ))
-            ) : (
-                <p>It looks like your cart is empty.</p>
-            )}
+              );
+            })
+          ) : (
+            <p>It looks like your cart is empty.</p>
+          )}
         </main>
-
-                     <Finalization>
-                        <FinalizationDetails>
-                            <div>
-                                <span>Amount</span>
-                                <p>{bagQuantity} {bagQuantity === 1 ? 'item' : 'itens'}</p>
-                            </div>
-                            <div>
-                                <span>Amount Total</span>
-                                <p>{formattedTotal}</p>
-                            </div>
-                        </FinalizationDetails>
-                        <button onClick={handleCheckout} disabled={isCreatingCheckoutSession || bagQuantity <= 0}>Finalize purchase</button>
-                    </Finalization>
-    </ItmsContent>
-  </Dialog.Portal>
-  )
+        <Finalization>
+          <FinalizationDetails>
+            <div>
+              <span>Amount</span>
+              <p>{cartCount}</p>
+            </div>
+            <div>
+              <span>Amount Total</span>
+              <p>{formattedTotal}</p>
+            </div>
+          </FinalizationDetails>
+          <button onClick={handleCheckout} disabled={cartCount === 0}>Finalize purchase</button>
+        </Finalization>
+      </ItmsContent>
+    </Dialog.Portal>
+  );
 }

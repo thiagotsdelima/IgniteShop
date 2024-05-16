@@ -3,17 +3,37 @@ import { ImageContainer, ProductContainer, ProductDetails } from "@/src/styles/p
 import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { IProduct } from '../../contexts/BagContext'
-import { CartProvider } from '../../hooks/cart'
+import { useShoppingCart } from 'use-shopping-cart'
 import Stripe from "stripe";
+import { useState } from "react";
 
 interface ProductProps {
-  product: IProduct
+  product: {
+    id: string
+    name: string
+    imageUrl: string
+    price: string
+    description: string
+    defaultPriceId: string
+    sku: string
+  }
 }
 
 export default function Product({ product }: ProductProps) {
-  const { checkItemExists, addToProductCart } = CartProvider()
-  const itemInCart = checkItemExists(product.id)
+  const { addItem, cartDetails } = useShoppingCart()
+  const [isCreatingCheckout, setIsCreatingCheckout] = useState(false)
+
+  const itemInCart = cartDetails.hasOwnProperty(product.id)
+
+  async function handleBuyProduct() {
+    try {
+      setIsCreatingCheckout(true)
+      await addItem(product)
+    } catch (error) {
+      setIsCreatingCheckout(false)
+      alert(`Failed to add item to cart`)
+    }
+  }
   
   return (
     <>
@@ -31,8 +51,8 @@ export default function Product({ product }: ProductProps) {
       <p>{product.description}</p>
       <button 
       disabled={itemInCart} 
-      onClick={() => addToProductCart(product)}>
-        {itemInCart ? 'Product is already in the cart' : 'Put it in the bag'}
+      onClick={handleBuyProduct}>
+        {itemInCart ? 'Product is already in the cart' : 'Add to Cart'}
       </button>
     </ProductDetails>
    </ProductContainer>
@@ -55,7 +75,6 @@ export const getStaticProps: GetStaticProps<ProductProps> = async ({ params }) =
     expand: ['default_price'],
   });
   const price = product.default_price as Stripe.Price;
-  const unitAmount = price?.unit_amount ?? 0;
   return {
     props: {
       product: {
@@ -65,9 +84,10 @@ export const getStaticProps: GetStaticProps<ProductProps> = async ({ params }) =
           price: new Intl.NumberFormat('pt-BR', {
           style: 'currency',
           currency: 'BRL'
-        }).format(unitAmount / 100),
+        }).format((price.unit_amount || 0) / 100),
         description: product.description,
         defaultPriceId: price.id,
+        sku: product.metadata?.sku 
       }
     },
     revalidate: 60 * 60 * 1 // 1 hour

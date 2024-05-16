@@ -1,27 +1,26 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { forwardRef, useContext } from 'react';
-import { BagContext } from '../../contexts/BagContext'
+import { forwardRef } from 'react';
+import { useShoppingCart } from 'use-shopping-cart';
 import { MenuContent } from '../MenuContent';
+import { BagButton } from '../BagButton';
 
 interface MenuHamburguerProps {
   badgeComponent: React.ComponentType<{ count: number }> | null;
 }
 
-import { BagButton } from '../BagButton';
 const ForwardedBagButton = forwardRef<HTMLDivElement>((props, ref) => <BagButton ref={ref} {...props} />);
 
-
 export function MenuHamburguer({ badgeComponent }: MenuHamburguerProps) {
-  const { bagItems } = useContext(BagContext);
-  const bagQuantity = bagItems ? bagItems.length : 0;
-  const BadgeComponent = badgeComponent; 
+  const { cartCount } = useShoppingCart(); 
+
+  const BadgeComponent = badgeComponent;
 
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
         <div style={{ position: 'relative' }}>
           <ForwardedBagButton />
-          {BadgeComponent && bagQuantity > 0 && <BadgeComponent count={bagQuantity} />}
+          {BadgeComponent && cartCount > 0 && <BadgeComponent count={cartCount} />} 
         </div>
       </Dialog.Trigger>
       <MenuContent />

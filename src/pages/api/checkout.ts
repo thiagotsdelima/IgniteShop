@@ -2,8 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { stripe } from "../../services/stripe";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { items } = req.body;
-
+  const { items }: { items: any[] } = req.body;
   console.log('Received items:', items);
 
   if (req.method !== "POST") {

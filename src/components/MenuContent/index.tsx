@@ -8,10 +8,10 @@ import { ItmsContent, Product, ProductImage, ProductDetails, Finalization, Final
 
 interface ItemCart {
   id: string;
-  img?: string;
+  imageUrl?: string; 
   name: string;
-  price: number;
-  quantity?: number;
+  price: string; 
+  quantity: number; 
 }
 
 export function MenuContent() {
@@ -27,26 +27,34 @@ export function MenuContent() {
   }).format((cartCount || 0) / 100);
 
   useEffect(() => {
-    if (cartCount! > 0) {
-      setStateCart(false);
-    } else {
-      setStateCart(true);
+    if (cartCount !== undefined && cartDetails !== undefined) {
+      if (cartCount > 0) {
+        setStateCart(false);
+      } else {
+        setStateCart(true);
+      }
+  
+      const itemsArray = Object.keys(cartDetails).map((itemId) => {
+        const item = cartDetails[itemId];
+        const priceString = item.price !== null ? item.price.toString() : '';
+      
+        const itemCartObject: ItemCart = {
+          id: item.id,
+          imageUrl: item.imageUrl, 
+          name: item.name,
+          price: priceString, 
+          quantity: item.quantity, 
+        };
+      
+        return itemCartObject;
+      });
+  
+      setItemCart(itemsArray);
     }
+  }, [cartCount, cartDetails]);
+  
+  
 
-    const itemsArray = Object.keys(cartDetails!).map((itemId) => {
-      const item = cartDetails![itemId];
-      const itemCartObj: ItemCart = {
-        id: item.id,
-        img: item.image,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity
-      };
-      return itemCartObj;
-    });
-
-    setItemCart(itemsArray);
-  }, [cartCount]);
 
   async function handleCheckout() {
     try {
@@ -84,7 +92,7 @@ export function MenuContent() {
                   </ProductImage>
                   <ProductDetails>
                     <p>{product.name}</p>
-                    <strong>{product.formattedValue}</strong>
+                    <span>{product.price}</span>
                     <button onClick={() => removeItem(product.id)}>Remove</button>
                   </ProductDetails>
                 </Product>

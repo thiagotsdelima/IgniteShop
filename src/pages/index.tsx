@@ -8,7 +8,7 @@ import 'keen-slider/keen-slider.min.css';
 import Stripe from "stripe";
 import Link from "next/link";
 import Head from "next/head";
-import { MouseEvent } from "react";
+import { MouseEvent, useState } from "react";
 import { useShoppingCart } from "use-shopping-cart";
 
 interface HomeProps {
@@ -20,11 +20,13 @@ interface HomeProps {
     description: string
     defaultPriceId: string
     sku: string
+    quantity: number;
   }[]
 }
 
 export default function Home({ products }: HomeProps) {
   const { addItem, cartDetails } = useShoppingCart(); 
+  const [isCreatingCheckout, setIsCreatingCheckout] = useState(false)
   const [sliderRef] = useKeenSlider({
     slides: {
       perView: 3,
@@ -32,26 +34,23 @@ export default function Home({ products }: HomeProps) {
     }
   });
 
-  const handleAddToProductCart = (e: MouseEvent, product: Product) => {
-    const productInCart = Object.keys(cartDetails).find((key) => key === product.id); 
-    if (productInCart) {
-      console.error("Product is already in the cart.");
-    } else {
-      addItem({
-        sku: product.id,
-        name: product.name,
-        price: parseFloat(product.price),
-        image: product.imageUrl,
-        quantity: 1,
-        currency: 'BRL',
-        price_id:  product.defaultPriceId
-      });
+  async function handleAddToProductCart(e: MouseEvent, product: HomeProps['products'][0]) {
+    e.preventDefault();
+    try {
+      setIsCreatingCheckout(true)
+      await addItem(product)
+    } catch (error) {
+      setIsCreatingCheckout(false)
+      alert(`Failed to add item to cart`)
     }
   };
 
   const checkItemExists = (productId: string) => {
-    const productInCart = Object.keys(cartDetails).find((key) => key === productId); 
-    return !!productInCart;
+    if (!cartDetails) {
+      console.error("Cart details are not available.");
+      return false;
+    }
+    return !!cartDetails[productId];
   };
 
   return (

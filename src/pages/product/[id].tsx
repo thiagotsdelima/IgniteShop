@@ -74,21 +74,23 @@ export const getStaticProps: GetStaticProps<ProductProps> = async ({ params }) =
   const product = await stripe.products.retrieve(productId, {
     expand: ['default_price'],
   });
+  
   const price = product.default_price as Stripe.Price;
+  const sku = product.metadata?.sku ?? null;
   return {
     props: {
       product: {
-          id: product.id,
-          name: product.name,
-          imageUrl: product.images[0],
-          price: new Intl.NumberFormat('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        }).format((price.unit_amount || 0) / 100),
-        description: product.description,
-        defaultPriceId: price.id,
-        sku: product.metadata?.sku 
-      }
+        id: product.id,
+        name: product.name,
+        imageUrl: product.images[0],
+        price: new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      }).format((price.unit_amount || 0) / 100),
+      description: product.description,
+      defaultPriceId: price.id,
+      sku: sku
+    }
     },
     revalidate: 60 * 60 * 1 // 1 hour
   };

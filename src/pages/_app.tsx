@@ -2,35 +2,24 @@ import type { AppProps } from "next/app";
 import { globalStyles } from "../styles/global";
 import { Container, Header } from '../styles/pages/app'
 import { MenuHamburguer } from "../components/MenuHamburguer";
-import { CartProvider } from 'use-shopping-cart'
-import { useRouter } from "next/router";
+import { ShopCartProvider } from '@/context/shopCartContext'
+import { Badge } from '../components/badge'
 import logoImg from '../assets/logo.svg'
 import Image from "next/image";
-import { Badge } from '../components/badge'
 
-globalStyles(); 
-const stripeKey = process.env.STRIPE_PUBLIC_KEY
+globalStyles()
 
 export default function App({ Component, pageProps }: AppProps) {
-  const { pathname } = useRouter()
-  const showCart = pathname !== '/success'
 
   return (
-    <CartProvider
-    shouldPersist
-    cartMode="checkout-session"
-    stripe={String(stripeKey)}
-    currency="BRL"
-  >
-      <Container>
+    <ShopCartProvider>
+    <Container>
         <Header>
           <Image src={logoImg} alt="" /> 
-          {showCart && (
           <MenuHamburguer badgeComponent={Badge} />
-          )}
         </Header>
         <Component {...pageProps} />
-      </Container>
-   </CartProvider>
+        </Container>  
+    </ShopCartProvider>
   )
 }

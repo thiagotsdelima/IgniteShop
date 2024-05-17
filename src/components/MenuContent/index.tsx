@@ -1,70 +1,64 @@
+import { useContext, useState, useEffect } from 'react'
+import { shopCartContext } from '../../context/shopCartContext'
+
+import { X } from 'phosphor-react'
+
 import * as Dialog from '@radix-ui/react-dialog';
-import { useEffect, useState } from 'react';
-import { X } from 'phosphor-react';
-import Image from 'next/image';
-import axios from 'axios';
-import { useShoppingCart } from 'use-shopping-cart';
+
+import Image from 'next/image'
+import axios from 'axios'
 import { ItmsContent, Product, ProductImage, ProductDetails, Finalization, FinalizationDetails, Title, Close } from './styles';
 
-interface ItemCart {
-  id: string;
-  imageUrl?: string; 
-  name: string;
-  price: number,
-  quantity: number; 
-}
-
 export function MenuContent() {
-  const {cartCount, totalPrice, cartDetails, removeItem, clearCart, redirectToCheckout} = useShoppingCart()
+  const {shopCart:{shopCartList},removeItem} = useContext(shopCartContext)
+  const [totalPrice, setTotalPrice] = useState('')
 
-  const [itemCart, setItemCart] = useState<ItemCart[]>([]);
-  const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false);
-  const [stateCart, setStateCart] = useState(true);
+  const [isCreatingCheckoutSession,setIsCreatingCheckoutSession] = useState(false)
 
-  useEffect(() => {
-    if (cartCount !== undefined && cartDetails !== undefined) {
-      if (cartCount > 0) {
-        setStateCart(false);
-      } else {
-        setStateCart(true);
-      }
-  
-      const itemsArray = Object.keys(cartDetails).map((itemId) => {
-        const item = cartDetails[itemId];
-  
-        const itemCartObject: ItemCart = {
-          id: item.id,
-          imageUrl: item.imageUrl, 
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-        };
-  
-        return itemCartObject;
-      });
-  
-      setItemCart(itemsArray);
-    }
-  }, [cartCount]);
-  
-
-
-  async function handleCheckout() {
+  async function handleBuyButton() {
     try {
-      const itemsToSend = itemCart.map(({ id, quantity }) => ({ id, quantity }));
+      const priceId = shopCartList.map(item =>{
+        return {
+          price: item.defaultPriceId,
+          quantity:1
+
+        }
+      })
+      setIsCreatingCheckoutSession(true);
+
       const response = await axios.post('/api/checkout', {
-        items: itemsToSend
-      });
+        priceId
+      })
 
       const { checkoutUrl } = response.data;
+
       window.location.href = checkoutUrl;
     } catch (err) {
-      alert(err);
-    }
+      setIsCreatingCheckoutSession(false);
 
-    setIsCreatingCheckoutSession(true);
-    clearCart();
+      alert('Falha ao redirecionar ao checkout!')
+    }
   }
+
+
+  function handleRemoveItem(id:string){
+    removeItem(id)
+  }
+  
+  useEffect(()=>{
+    function handleQuantity(){
+      const soma = shopCartList.reduce((acc, cv) => acc + Number(cv.price.split('$')[1].replace(',','.')),0)
+  
+  
+      const finalPrice = new Intl.NumberFormat('pt-BR',{
+        style:'currency',
+        currency:'BRL',
+      }).format(soma)
+  
+      setTotalPrice(finalPrice)
+    }
+    handleQuantity()
+  },[shopCartList])
 
   return (
     <Dialog.Portal>
@@ -75,9 +69,8 @@ export function MenuContent() {
         </Close>
         <Title>Bag of Shopping</Title>
         <main>
-          {cartDetails && Object.keys(cartDetails).length > 0 ? (
-            Object.keys(cartDetails).map((sku) => {
-              const product = cartDetails[sku];
+          {shopCartList.length > 0 ?    
+          shopCartList.map((product) => {
               return (
                 <Product key={sku}>
                   <ProductImage>
@@ -99,14 +92,17 @@ export function MenuContent() {
           <FinalizationDetails>
             <div>
               <span>Amount</span>
-              <p>{cartCount}</p>
+              <p>
+                {shopCartList.length} 
+                {shopCartList.length === 1 ? ' item' : ' itens'}
+              </p>
             </div>
             <div>
               <span>Amount Total</span>
-              <p>{(totalPrice!/100)}</p>
+              <p>{totalPrice}</p>
             </div>
           </FinalizationDetails>
-          <button onClick={handleCheckout} disabled={cartCount === 0}>Finalize purchase</button>
+          <button onClick={handleBuyButton} disabled={isCreatingCheckoutSession}>Finalize purchase</button>
         </Finalization>
       </ItmsContent>
     </Dialog.Portal>

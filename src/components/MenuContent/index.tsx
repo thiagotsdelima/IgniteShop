@@ -10,21 +10,16 @@ interface ItemCart {
   id: string;
   imageUrl?: string; 
   name: string;
-  price: string; 
+  price: number,
   quantity: number; 
 }
 
 export function MenuContent() {
-  const { cartCount, cartDetails, removeItem, clearCart } = useShoppingCart(); 
+  const {cartCount, totalPrice, cartDetails, removeItem, clearCart, redirectToCheckout} = useShoppingCart()
 
   const [itemCart, setItemCart] = useState<ItemCart[]>([]);
   const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false);
   const [stateCart, setStateCart] = useState(true);
-
-  const formattedTotal = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format((cartCount || 0) / 100);
 
   useEffect(() => {
     if (cartCount !== undefined && cartDetails !== undefined) {
@@ -36,23 +31,21 @@ export function MenuContent() {
   
       const itemsArray = Object.keys(cartDetails).map((itemId) => {
         const item = cartDetails[itemId];
-        const priceString = item.price !== null ? item.price.toString() : '';
-      
+  
         const itemCartObject: ItemCart = {
           id: item.id,
           imageUrl: item.imageUrl, 
           name: item.name,
-          price: priceString, 
-          quantity: item.quantity, 
+          price: item.price,
+          quantity: item.quantity,
         };
-      
+  
         return itemCartObject;
       });
   
       setItemCart(itemsArray);
     }
-  }, [cartCount, cartDetails]);
-  
+  }, [cartCount]);
   
 
 
@@ -110,7 +103,7 @@ export function MenuContent() {
             </div>
             <div>
               <span>Amount Total</span>
-              <p>{formattedTotal}</p>
+              <p>{(totalPrice!/100)}</p>
             </div>
           </FinalizationDetails>
           <button onClick={handleCheckout} disabled={cartCount === 0}>Finalize purchase</button>
